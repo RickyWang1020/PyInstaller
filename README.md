@@ -17,17 +17,17 @@
     
         pyinstaller -D xxx.py
 
-2. **主文件需要import其他Python文件**：之前我使用-p指令来包含需要import的文件路径，但是在命令行一个一个把文件路径拷进去非常麻烦，而且容易出错不易修改。这次使用的是在`.spec`文件的Analysis括号后的第一个[]内把需要import到的python文件名都写上，比较清晰而且可以反复修改。
+2. **主文件需要import其他Python文件**：之前我使用-p指令来包含需要import的文件路径，但是在命令行一个一个把文件路径拷进去非常麻烦，而且容易出错不易修改。这次使用的是在 `.spec` 文件的Analysis括号后的第一个[]内把需要import到的python文件名都写上，比较清晰而且可以反复修改。
 
-3. **主文件需要阅读其它类型的文件**：我的程序中需要阅读一个`.yaml`配置文件，但是不知道如何把它加入.exe的打包路径中，导致每次打包出的文件会报错：`.yaml`文件不存在。经过搜索了解，这类在程序中会被用到的其他类型文件需要写在`.spec`文件Analysis的datas一栏内，形式是tuples，每个tuple第一个元素是需要使用到的文件的路径，第二个元素是文件在即将生成的.exe文件所在的文件夹中的路径。例如：
+3. **主文件需要阅读其它类型的文件**：我的程序中需要阅读一个 `.yaml` 配置文件，但是不知道如何把它加入.exe的打包路径中，导致每次打包出的文件会报错：`.yaml`文件不存在。经过搜索了解，这类在程序中会被用到的其他类型文件需要写在 `.spec` 文件Analysis的datas一栏内，形式是tuples，每个tuple第一个元素是需要使用到的文件的路径，第二个元素是文件在即将生成的.exe文件所在的文件夹中的路径。例如：
 
         datas=[('config.yaml', 'configuration')]
         
-    会将`config.yaml`复制一份放入.exe所在路径中一个新创建的`configuration`文件夹中。
+    会将 `config.yaml` 复制一份放入.exe所在路径中一个新创建的 `configuration` 文件夹中。
     
 4. **移植到其他机器上可能遇到路径问题**：可能在Python程序内使用了相对路径，在其他电脑上无法正常运行。我参考的是[Pyinstaller 打包发布经验总结](https://blog.csdn.net/weixin_42052836/article/details/82315118)内“冻结打包路径”中的第二种方式，通过创建一个frozen函数，可以解决相对路径存在的问题，比os.getcwd()更可靠（因为在cmd中运行程序时，当前路径不一定是程序所在的路径，用getcwd可能会报错）。
 
-5. **打包时超过最大递归深度**：可能是某个包递归次数过多，可以在`.spec`文件中
+5. **打包时超过最大递归深度**：可能是某个包递归次数过多，可以在 `.spec` 文件中
 
         # -*- mode: python ; coding: utf-8 -*-
 
@@ -36,16 +36,21 @@
 
         import sys
         sys.setrecursionlimit(1000000)
+        
+6. **Fatal error detected: Failed to execute script xxx**：我自己遇到过这个问题，我总结下来有几个可能的原因：
+        1) import到主文件内的其他python文件内有 `if __name__ == '__main__'` 代码块，可能导致程序的混乱，可以尽量避免在要打包的import文件内写入这类测试代码块
+        2) 读文件时发生路径错误，我在检查代码时发现自己把绝对路径写成了相对路径
+        3) 程序内有在console内打印/交互的代码，但是打包出的文件没有显示console：我自己的程序用的是Tkinter的GUI，同时也需要console窗口的打印（`print`）和交互（`input()`），但是默认的 `.spec` 中，默认值为 `console=False` ，即不产生console窗口。在这种情况下，把这一参数改为 `console=True` 就可以在运行.exe文件时显示console窗口了
 
-6. **重复配置.spec文件**：每次对`.spec`文件作出修改之后，需要运行：
+7. **重复配置.spec文件**：每次对 `.spec` 文件作出修改之后，需要运行：
 
         pyinstaller -D xxx.spec
         
     来重新生成新的打包目录，打包目录有两个文件夹：build（打包过程中生成的临时文件目录）和dist（打包结果目录，包含.exe文件）。
     
-    之前重新打包的时候有时会出现`WARNING: The output directory "/mypath/dirname" and ALL ITS CONTENTS will be REMOVED! Continue? (y/n)`，可以手动输入y，也可以在重新打包之前直接删除已有的dist和build让它再次生成两个文件夹避免出现这个warning。
+    之前重新打包的时候有时会出现 `WARNING: The output directory "/mypath/dirname" and ALL ITS CONTENTS will be REMOVED! Continue? (y/n)` ，可以手动输入y，也可以在重新打包之前直接删除已有的dist和build让它再次生成两个文件夹避免出现这个warning。
     
-    我自己在单位电脑上尝试的时候发现手动输入y会报错：`PermissionError: [WinError 5] Access is denied`，保险起见还是采用删除文件夹的方式。
+    我自己在单位电脑上尝试的时候发现手动输入y会报错：`PermissionError: [WinError 5] Access is denied` ，保险起见还是采用删除文件夹的方式。
 
 
 ## References
