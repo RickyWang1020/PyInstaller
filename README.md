@@ -38,9 +38,12 @@
         sys.setrecursionlimit(1000000)
         
 6. **Fatal error detected: Failed to execute script xxx**：我自己遇到过这个问题，我总结下来有几个可能的原因：
-        1) import到主文件内的其他python文件内有 `if __name__ == '__main__'` 代码块，可能导致程序的混乱，可以尽量避免在要打包的import文件内写入这类测试代码块
-        2) 读文件时发生路径错误，我在检查代码时发现自己把绝对路径写成了相对路径
-        3) 程序内有在console内打印/交互的代码，但是打包出的文件没有显示console：我自己的程序用的是Tkinter的GUI，同时也需要console窗口的打印（`print`）和交互（`input()`），但是默认的 `.spec` 中，默认值为 `console=False` ，即不产生console窗口。在这种情况下，把这一参数改为 `console=True` 就可以在运行.exe文件时显示console窗口了
+
+    1) import到主文件内的其他python文件内有 `if __name__ == '__main__'` 代码块，可能导致程序的混乱，可以尽量避免在要打包的import文件内写入这类测试代码块
+        
+    2) 读文件时发生路径错误，我在检查代码时发现自己把绝对路径写成了相对路径
+        
+    3) 程序内有在console内打印/交互的代码，但是打包出的文件没有显示console：我自己的程序用的是Tkinter的GUI，同时也需要console窗口的打印（`print`）和交互（`input()`），但是默认的 `.spec` 中，默认值为 `console=False` ，即不产生console窗口。在这种情况下，把这一参数改为 `console=True` 就可以在运行.exe文件时显示console窗口了
 
 7. **重复配置.spec文件**：每次对 `.spec` 文件作出修改之后，需要运行：
 
