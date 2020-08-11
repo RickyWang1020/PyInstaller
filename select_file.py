@@ -115,3 +115,53 @@ def further_procedure_path(original_data_path):
         return None
 
     return file_loc_str, target_dir_str
+
+def check_box():
+    check_window = Tk()
+
+    screen_width = check_window.winfo_screenwidth()
+    screen_height = check_window.winfo_screenheight()
+
+    x = int((screen_width - 450) / 2)
+    y = int((screen_height - 280) / 2)
+
+    check_window.title("Create XML: Source Data Location and Target Directory")
+    check_window.geometry("%sx%s+%s+%s" % (450, 280, x, y))
+
+    tk_default_data_path = StringVar()
+    tk_target_dir = StringVar()
+    var1 = BooleanVar()
+    var2 = BooleanVar()
+
+    Label(check_window, text="Please select the data file you want to process (.xml): ").grid(row=0, padx=10, pady=5, sticky=W)
+    Entry(check_window, textvariable=tk_default_data_path).grid(row=1, column=0, padx=10, sticky=W+E)
+    Button(check_window, text="Browse Computer", command=lambda: select_file_path(tk_default_data_path)).grid(row=1, column=1, padx=10, pady=10, sticky=E)
+
+    Label(check_window, text="Please assign the directory to put the processed data: ").grid(row=2, padx=10, pady=5, sticky=W)
+    Entry(check_window, textvariable=tk_target_dir).grid(row=3, column=0, padx=10, sticky=W + E)
+    Button(check_window, text="Browse Computer", command=lambda: select_dir(tk_target_dir)).grid(row=3, column=1, padx=10, pady=10)
+
+    Checkbutton(check_window, text="Generate a folder containing all .Py files", variable=var1).grid(row=4, padx=10, pady=5, sticky=W)
+    Checkbutton(check_window, text="Generate a .xml file containing all test cases", variable=var2).grid(row=5, padx=10, pady=5, sticky=W)
+
+    Button(check_window, text="Confirm and Start", command=check_window.quit).grid(row=6, columnspan=4, padx=10, pady=10, sticky=W + E)
+
+    check_window.mainloop()
+
+    file_loc_str = tk_default_data_path.get()
+    file_loc_str = file_loc_str.replace("/", "\\")
+
+    target_dir_str = tk_target_dir.get()
+    target_dir_str = target_dir_str.replace("/", "\\")
+
+    try:
+        opened = bool(check_window.winfo_viewable())
+        check_window.destroy()
+    except:
+        print("Cannot generate new file because the window is closed...")
+        return None
+
+    var1_bool = var1.get()
+    var2_bool = var2.get()
+
+    return file_loc_str, target_dir_str, var1_bool, var2_bool
