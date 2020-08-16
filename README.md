@@ -37,7 +37,7 @@
         import sys
         sys.setrecursionlimit(1000000)
         
-6. **Fatal error detected: Failed to execute script xxx**：我自己遇到过这个问题，我总结下来有几个可能的原因：
+6. **“Fatal error detected: Failed to execute script xxx”或者双击.exe文件无法运行**：总结下来有几个可能的原因：
 
     1) import到主文件内的其他python文件内有 `if __name__ == '__main__'` 代码块，可能导致程序的混乱，可以尽量避免在要打包的import文件内写入这类测试代码块
         
@@ -51,9 +51,9 @@
         
     来重新生成新的打包目录，打包目录有两个文件夹：build（打包过程中生成的临时文件目录）和dist（打包结果目录，包含.exe文件）。
     
-    之前重新打包的时候有时会出现 `WARNING: The output directory "/mypath/dirname" and ALL ITS CONTENTS will be REMOVED! Continue? (y/n)` ，可以手动输入y，也可以在重新打包之前直接删除已有的dist和build让它再次生成两个文件夹避免出现这个warning。
+    之前重新打包的时候有时会出现 `WARNING: The output directory "/mypath/dirname" and ALL ITS CONTENTS will be REMOVED! Continue? (y/n)`，可以手动输入y，也可以在重新打包之前直接删除已有的dist和build让它再次生成两个文件夹避免出现这个warning。
     
-    我自己在单位电脑上尝试的时候发现手动输入y会报错：`PermissionError: [WinError 5] Access is denied` ，保险起见还是采用删除文件夹的方式。
+    我自己在单位电脑上尝试的时候发现手动输入y会报错：`PermissionError: [WinError 5] Access is denied`，保险起见还是采用删除文件夹的方式。
 
 
 ## References
