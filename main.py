@@ -13,7 +13,7 @@ try:
 
     if to_create_folder or to_gen_xml:
 
-        conf = read_config(os.path.join(SETUP_DIR, "config", "conf.yaml"))
+        conf = read_config("conf.yaml")
         cont = open_xml(file_path)
         parsed = parse_test_cases(cont)
         tc_dic, type_id = generate_dic_and_decide_type(parsed)
@@ -25,7 +25,7 @@ try:
             folder_dir = create_folder(target_dir, folder_name)
 
             # default template is the template in the current directory
-            template_content = read_from_template(os.path.join(SETUP_DIR, "temp","Template.py"))
+            template_content = read_from_template("Template.py")
 
             for k, v in tc_dic.items():
                 f_path = create_py(folder_dir, k)

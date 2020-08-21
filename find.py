@@ -41,13 +41,11 @@ def generate_dic_and_decide_type(testcase_list):
     type = ""
     for t in testcase_list:
         first_colon = t.find(":")
-        if first_colon == -1:
-            print("Error when processing: " + t)
-            return
-        key = t[:first_colon]
-        val = t[first_colon + 2:]
-        dic[key] = val
-        if not type:
-            tc = t.split("_")[0]
-            type = tc[2:]
+        if first_colon != -1 and t.strip().startswith("tc"):
+            key = t[:first_colon]
+            val = t[first_colon + 2:]
+            dic[key] = val
+            if not type:
+                tc = t.split("_")[0]
+                type = tc[2:]
     return dic, type
