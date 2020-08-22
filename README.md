@@ -1,6 +1,6 @@
 # PyInstaller
 ## About
-工作原因，需要将Python程序打包成.exe文件，在网上搜索之后发现Pyinstaller是目前比较稳定好用的一个程序，于是果断下载，上手使用。
+工作原因，需要将Python程序打包成.exe文件（打包的好处在于移植到其他没有Python环境或模块的电脑上也可以运行该程序），在网上搜索之后发现Pyinstaller是目前比较稳定好用的一个程序，于是下载后上手使用。
 
 在此之前有过一次失败的Pyinstaller打包，是由于原文件import的包太多，加上对Pyinstaller指令不熟悉，生成的exe文件非常大而且执行时会闪退。
 
@@ -9,17 +9,17 @@
 在这里总结一下一些我遇到的问题以及我尝试的解决方案。
 
 ## Trials and Errors
-1. **打包方式（-F和-D）**：如果只有单个Py文件可以使用-F直接打包，但是多个文件之间有import关系要使用-D。我的程序是多个文件，之前失败的打包用了网上抄来的一段指令，生成的exe点开后会直接闪退:
+1. **打包方式（-F和-D）**：如果只有单个Py文件可以使用 `-F` 直接打包，但是多个文件之间有import关系要使用 `-D`。我的程序是多个文件，之前失败的打包使用了网上抄来的一段指令，生成的exe点开后会直接闪退:
 
         pyinstaller -F xxx.py -p /importfilepath/importfile1 -p /importfilepath/importfile2 ...
     
-    这次换了-D的指令，exe没有出现闪退情况：
+    这次换了 `-D` 的指令，exe没有出现闪退情况：
     
         pyinstaller -D xxx.py
 
-2. **主文件需要import其他Python文件**：之前我使用-p指令来包含需要import的文件路径，但是在命令行一个一个把文件路径拷进去非常麻烦，而且容易出错不易修改。这次使用的是在 `.spec` 文件的Analysis括号后的第一个[]内把需要import到的python文件名都写上，比较清晰而且可以反复修改。
+2. **主文件需要import其他Python文件**：之前我使用 `-p` 指令来包含需要import的文件路径，但是在命令行一个一个把文件路径拷进去非常麻烦，而且容易出错不易修改。这次使用的是在 `.spec` 文件的Analysis括号后的第一个[]内把需要import到的python文件名都写上，比较清晰而且可以反复修改。
 
-3. **主文件需要阅读其它类型的文件**：我的程序中需要阅读一个 `.yaml` 配置文件，但是不知道如何把它加入.exe的打包路径中，导致每次打包出的文件会报错：`.yaml`文件不存在。经过搜索了解，这类在程序中会被用到的其他类型文件需要写在 `.spec` 文件Analysis的datas一栏内，形式是tuples，每个tuple第一个元素是需要使用到的文件的路径，第二个元素是文件在即将生成的.exe文件所在的文件夹中的路径。例如：
+3. **主文件需要阅读其他类型的文件**：我的程序中需要阅读一个 `.yaml` 配置文件，但是不知道如何把它加入.exe的打包路径中，导致每次打包出的文件会报错：`.yaml`文件不存在。经过搜索了解，这类在程序中会被用到的其他类型文件需要写在 `.spec` 文件Analysis的datas一栏内，形式是tuples，每个tuple第一个元素是需要使用到的文件的路径，第二个元素是文件在即将生成的.exe文件所在的文件夹中的路径。例如：
 
         datas=[('config.yaml', 'configuration')]
         
@@ -37,13 +37,13 @@
         import sys
         sys.setrecursionlimit(1000000)
         
-6. **“Fatal error detected: Failed to execute script xxx”或者双击.exe文件无法运行**：总结下来有几个可能的原因：
+6. **“Fatal error detected: Failed to execute script xxx”或者双击.exe文件运行时发生混乱/报错**：总结下来有几个可能的原因：
 
     1) import到主文件内的其他python文件内有 `if __name__ == '__main__'` 代码块，可能导致程序的混乱，可以尽量避免在要打包的import文件内写入这类测试代码块（在打包之前一定要检查一下每个文件里是否有该代码块，否则连带着一起打包会发生其他异常的情况，比如多print一些内容，或者多加载别的窗口。一般情况下，打包之前程序运行正常，但是打包之后看到有多出的窗口或者多出print的内容甚至产生error，一般都是因为 `if __name__ == '__main__'` 在作怪）
         
     2) 读文件时发生路径错误，我在检查代码时发现自己把绝对路径写成了相对路径
         
-    3) 程序内有在console内打印/交互的代码，但是打包出的文件没有显示console：我自己的程序用的是Tkinter的GUI，同时也需要console窗口的打印（`print`）和交互（`input()`），但是默认的 `.spec` 中，默认值为 `console=False` ，即不产生console窗口。在这种情况下，把这一参数改为 `console=True` 就可以在运行.exe文件时显示console窗口了
+    3) 程序内有在console内打印/交互的代码，但是打包出的文件没有显示console：我自己的程序用的是Tkinter的GUI，同时也需要console窗口的打印（`print()`）和交互（`input()`），但是默认的 `.spec` 中，默认值为 `console=False` ，即不产生console窗口。在这种情况下，把这一参数改为 `console=True` 就可以在运行.exe文件时显示console窗口了
 
 7. **重复配置.spec文件**：每次对 `.spec` 文件作出修改之后，需要运行：
 
@@ -53,7 +53,7 @@
     
     之前重新打包的时候有时会出现 `WARNING: The output directory "/mypath/dirname" and ALL ITS CONTENTS will be REMOVED! Continue? (y/n)`，可以手动输入y，也可以在重新打包之前直接删除已有的dist和build让它再次生成两个文件夹避免出现这个warning。
     
-    我自己在单位电脑上尝试的时候发现手动输入y会报错：`PermissionError: [WinError 5] Access is denied`，保险起见还是采用删除文件夹的方式。
+    我在单位电脑上尝试的时候发现手动输入y会报错：`PermissionError: [WinError 5] Access is denied`，保险起见还是采用删除文件夹的方式。
 
 
 ## References
